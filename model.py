@@ -35,20 +35,35 @@ X_train = X_train.astype('float32') / 255
 X_test = X_test.astype('float32') / 255
 
 # Define model architecture
-model = Sequential()
-model.add(Conv2D(32, (3, 3), activation='relu', input_shape=(64, 64, 3)))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Conv2D(64, (3, 3), activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Flatten())
-model.add(Dense(128, activation='relu'))
-model.add(Dropout(0.5))
-model.add(Dense(1, activation='sigmoid'))
+base_model = ResNet50V2(
+    include_top=False,
+    input_shape=(256,256,3)
+)
+base_model.trainable = False
 
-# Compile model
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+model = Sequential([
+    base_model,
+    GlobalAveragePooling2D(),
+    Dense(256,activation='relu'),
+    BatchNormalization(),
+    Dense(164,activation='relu'),
+    BatchNormalization(),
+    Dense(1,activation='sigmoid')
+])
 
-# Train model
-model.fit(X_train, y_train, epochs=50, batch_size=32, validation_data=(X_test, y_test))
+model.compile(
+    loss='binary_crossentropy',
+    optimizer='Adam',
+    metrics=['accuracy']
+)
+
+cb = [EarlyStopping(patience=5,monitor='val_accuracy',mode='max',restore_best_weights=True),ModelCheckpoint("ResNet50V2-01.h5",save_best_only=True)]
+
+model.fit(
+    train_data,
+    epochs=50,
+    validation_data=valid_data,
+    callbacks=cb
+)
 
 model.save('monkeypox_model.h5')
