@@ -7,7 +7,7 @@ from keras.models import load_model
 model = load_model("monkeypox_model.h5")
 
 # Define the labels for the binary classification
-labels = ["Non Monkey Pox", "Monkey Pox"]
+labels = [ "Monkey Pox","Non Monkey Pox"]
 
 # Set up the Streamlit app
 st.title("Monkey Pox Detection")
@@ -22,7 +22,7 @@ if file is not None:
     img = cv2.imdecode(np.frombuffer(file.read(), np.uint8), 1)
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     img_disp = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)  # For display purposes only
-    img = cv2.resize(img, (64, 64))
+    img = cv2.resize(img, (256,256))
     img = np.expand_dims(img, axis=0) / 255.0
 
     # Make a prediction and display the result

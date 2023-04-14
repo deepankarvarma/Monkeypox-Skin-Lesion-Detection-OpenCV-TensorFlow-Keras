@@ -2,38 +2,20 @@ import os
 import cv2
 import numpy as np
 from sklearn.model_selection import train_test_split
+from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
-from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from keras.layers import Dense, GlobalAveragePooling2D, Dropout, BatchNormalization
+from keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.applications import ResNet50V2
 
-# Set up paths
-data_path = "Dataset/Original Images"
-classes = ["Others", "Monkey Pox"]
+# Data Generators
+train_gen = ImageDataGenerator(rescale=1./255)
+valid_gen = ImageDataGenerator(rescale=1./255,validation_split=0.4)
 
-# Read data into arrays
-data = []
-labels = []
-for class_name in classes:
-    class_path = os.path.join(data_path, class_name)
-    for img_name in os.listdir(class_path):
-        img_path = os.path.join(class_path, img_name)
-        img = cv2.imread(img_path)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = cv2.resize(img, (64, 64))
-        data.append(img)
-        if class_name == "Others":
-            labels.append(0)
-        else:
-            labels.append(1)
-data = np.array(data)
-labels = np.array(labels)
-
-# Split data into train and test sets
-X_train, X_test, y_train, y_test = train_test_split(data, labels, test_size=0.2)
-
-# Preprocess data
-X_train = X_train.astype('float32') / 255
-X_test = X_test.astype('float32') / 255
-
+# Loading Data
+train_data = train_gen.flow_from_directory("./Dataset/Augmented Images/Augmented Images",target_size=(256,256),shuffle=True,class_mode='binary')
+valid_data = valid_gen.flow_from_directory('./Dataset/Original Images',target_size=(256,256),shuffle=True,subset='training',class_mode='binary')
+test_data = valid_gen.flow_from_directory('./Dataset/Original Images',target_size=(256,256),shuffle=True,subset='validation',class_mode='binary')
 # Define model architecture
 base_model = ResNet50V2(
     include_top=False,
@@ -61,7 +43,7 @@ cb = [EarlyStopping(patience=5,monitor='val_accuracy',mode='max',restore_best_we
 
 model.fit(
     train_data,
-    epochs=50,
+    epochs=5,
     validation_data=valid_data,
     callbacks=cb
 )
