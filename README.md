@@ -1,6 +1,6 @@
-# Monkeypox Detection Using Multiclass Image Classification
+# Monkeypox Detection Using Binary Image Classification
 
-This repository contains code and dataset for generating a model to detect monkeypox from user-inputted video images using the ResNet50 architecture. The project focuses on multiclass image classification, specifically classifying skin lesion images into different categories related to monkeypox. The repository includes the necessary code and steps to train and evaluate the model.
+This repository contains code and dataset for generating a model to detect monkeypox from user-inputted video images using the ResNet50 architecture. The project focuses on binary class image classification, specifically classifying skin lesion images into different categories related to monkeypox. The repository includes the necessary code and steps to train and evaluate the model.
 
 ## Dataset
 
